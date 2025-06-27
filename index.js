@@ -16,15 +16,24 @@ const gauge = new prom.Gauge({
  });
 
  const histogram = new prom.Histogram({
-  name: 'request_time_seconds',
-  help: 'Tempo de resposta da API',
+  name: 'histogram_request_time_seconds',
+  help: 'Tempo de resposta da API via Histograma',
   buckets: [0.1, 0.2, 0.3, 0.4, 0.5],
+});
+
+const summary = new prom.Summary({
+  name: 'summary_request_time_seconds',
+  help: 'Tempo de resposta da API via Summary',
+  percentiles: [0.1, 0.5, 0.9, 0.99],
 });
 
 app.get('/', function(req, res) {
     counter.labels('200').inc(); // contador com label 200 que incrementa a cada requisição
     gauge.set(100*Math.random()); // simulando um gauge
-    histogram.observe(Math.random()); // simulando um histograma
+
+    const tempoResposta = Math.random();
+    histogram.observe(tempoResposta); // simulando um histograma
+    summary.observe(tempoResposta) // simulando um summary
 
     res.send('Hello World!');
 
